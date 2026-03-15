@@ -7,7 +7,6 @@ use crate::map::Map;
 use crate::render;
 use crate::sign::SignList;
 use crate::world;
-use portablegl::gl_context::GlContext;
 use portablegl::gl_types::*;
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
@@ -353,7 +352,7 @@ struct WorkerState {
     task: Option<WorkerTask>,
 }
 
-struct WorkerTask {
+pub(crate) struct WorkerTask {
     p: i32,
     q: i32,
     load: bool,

@@ -281,7 +281,6 @@ fn main() {
 
     let mut fps_counter = FpsCounter::new();
     let mut previous_time = timer.ticks() as f64 / 1000.0;
-    let start_time = previous_time;
 
     // Uniforms (allocated on heap so pointers remain stable)
     let mut block_uniforms = BlockUniforms {

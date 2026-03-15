@@ -55,8 +55,7 @@ pub fn set_matrix_item(width: i32, height: i32, scale: i32) -> Mat4 {
 }
 
 /// Extract frustum planes from a matrix.
-pub fn frustum_planes(radius: i32, matrix: &Mat4) -> [[f32; 4]; 6] {
-    let zfar = (radius * CHUNK_SIZE + CHUNK_SIZE) as f32;
+pub fn frustum_planes(_radius: i32, matrix: &Mat4) -> [[f32; 4]; 6] {
     let m = &matrix.0;
     let mut planes = [[0.0f32; 4]; 6];
     // Left
