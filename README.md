@@ -53,6 +53,10 @@ SDL2 libraries are vendored in the `lib/` directory and `SDL2.dll` is automatica
 | [rusqlite](https://crates.io/crates/rusqlite) | SQLite database (bundled) |
 | [png](https://crates.io/crates/png) | Texture loading |
 
+## License
+
+MIT License. See [LICENSE.md](LICENSE.md) for details.
+
 ## Acknowledgments
 
 This project is a Rust port of [Craft](https://github.com/fogleman/Craft) by Michael Fogleman.
