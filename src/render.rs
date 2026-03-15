@@ -22,13 +22,14 @@ pub fn set_matrix_3d(
     } else {
         make_perspective_m4(radians(fov), aspect, znear, zfar)
     };
-    // Rotate by ry (pitch) around X-like axis, rx (yaw) around Y axis
-    let id = Mat4::identity();
-    let rot_x = load_rotation_m4(Vec3 { x: rx.cos(), y: 0.0, z: rx.sin() }, ry);
-    let rot_y = load_rotation_m4(Vec3 { x: 0.0, y: 1.0, z: 0.0 }, -rx);
+    // Build view matrix: translate, then pitch (ry), then yaw (-rx)
+    // Note: Craft's mat_rotate produces R^T (inverse rotation), so angles are negated
+    // compared to portablegl-rs's load_rotation_m4 which uses the standard formula.
     let trans = translation_m4(-x, -y, -z);
+    let rot_pitch = load_rotation_m4(Vec3 { x: rx.cos(), y: 0.0, z: rx.sin() }, -ry);
+    let rot_yaw = load_rotation_m4(Vec3 { x: 0.0, y: 1.0, z: 0.0 }, rx);
 
-    mult_m4_m4(matrix, mult_m4_m4(rot_x, mult_m4_m4(rot_y, trans)))
+    mult_m4_m4(matrix, mult_m4_m4(rot_yaw, mult_m4_m4(rot_pitch, trans)))
 }
 
 /// Set up a 2D orthographic projection matrix.
@@ -40,12 +41,17 @@ pub fn set_matrix_2d(width: i32, height: i32) -> Mat4 {
 pub fn set_matrix_item(width: i32, height: i32, scale: i32) -> Mat4 {
     let aspect = width as f32 / height as f32;
     let size = 64.0 * scale as f32;
-    let box_w = height as f32 / aspect;
-    let matrix = make_perspective_m4(radians(10.0), aspect, 1.0, 100.0);
-    let trans = translation_m4(-(box_w - size) / width as f32 + 1.0, -1.0 + size / height as f32, -4.0);
-    let rot_x = load_rotation_m4(Vec3 { x: 1.0, y: 0.0, z: 0.0 }, -std::f32::consts::PI / 6.0);
+    let bx = height as f32 / size / 2.0;
+    let xoffset = 1.0 - size / width as f32 * 2.0;
+    let yoffset = 1.0 - size / height as f32 * 2.0;
+    // Craft's mat_rotate is transposed, so negate angles for portablegl-rs
+    // C: mat_rotate(Y, -PI/4) → effective +PI/4; mat_rotate(X, -PI/10) → effective +PI/10
     let rot_y = load_rotation_m4(Vec3 { x: 0.0, y: 1.0, z: 0.0 }, std::f32::consts::PI / 4.0);
-    mult_m4_m4(matrix, mult_m4_m4(trans, mult_m4_m4(rot_x, rot_y)))
+    let rot_x = load_rotation_m4(Vec3 { x: 1.0, y: 0.0, z: 0.0 }, std::f32::consts::PI / 10.0);
+    let ortho = make_orthographic_m4(-bx * aspect, bx * aspect, -bx, bx, -1.0, 1.0);
+    let trans = translation_m4(-xoffset, -yoffset, 0.0);
+    // Order: identity → rot_y → rot_x → ortho → translate
+    mult_m4_m4(trans, mult_m4_m4(ortho, mult_m4_m4(rot_x, rot_y)))
 }
 
 /// Extract frustum planes from a matrix.
