@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-portablegl = { path = "../portablegl-rs" }
+portablegl = "0.4"
 sdl2 = "0.37"
 noise = "0.9"
 rusqlite = { version = "0.32", features = ["bundled"] }

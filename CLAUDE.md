@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Craft-rs is a Minecraft clone ported from C to Rust, using software rendering via a local `portablegl-rs` crate (no GPU required). It uses SDL2 for windowing/input and Simplex noise for procedural terrain generation.
+Craft-rs is a Minecraft clone ported from C to Rust, using software rendering via the `portablegl` crate (no GPU required). It uses SDL2 for windowing/input and Simplex noise for procedural terrain generation.
 
 ## Build Commands
 
@@ -15,8 +15,6 @@ cargo build --release  # Release build
 ```
 
 **Platform note:** Currently targets `x86_64-pc-windows-gnu` (configured in `.cargo/config.toml`). The build script (`build.rs`) copies `SDL2.dll` to the target directory automatically. SDL2 static/import libraries are vendored in `/lib`.
-
-**Key dependency:** `portablegl` is a local crate referenced via `path = ../portablegl-rs` in Cargo.toml — it must exist as a sibling directory.
 
 ## Architecture
 

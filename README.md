@@ -33,7 +33,6 @@ A Minecraft clone written in Rust, ported from [Craft](https://github.com/foglem
 
 - Rust toolchain (edition 2021)
 - `x86_64-pc-windows-gnu` target (configured in `.cargo/config.toml`)
-- [portablegl-rs](https://github.com/shmutalov/portablegl-rs) cloned as a sibling directory (`../portablegl-rs`)
 
 ## Building and Running
 
