@@ -1,6 +1,6 @@
 # Craft-rs
 
-A Minecraft clone written in Rust, ported from [Craft](https://github.com/fogleman/Craft) by Michael Fogleman. Uses software rendering via [portablegl-rs](https://github.com/pjholden/portablegl-rs) — no GPU required.
+A Minecraft clone written in Rust, ported from [Craft](https://github.com/fogleman/Craft) by Michael Fogleman. Uses software rendering via [portablegl-rs](https://github.com/shmutalov/portablegl-rs) — no GPU required.
 
 ## Features
 
@@ -33,7 +33,7 @@ A Minecraft clone written in Rust, ported from [Craft](https://github.com/foglem
 
 - Rust toolchain (edition 2021)
 - `x86_64-pc-windows-gnu` target (configured in `.cargo/config.toml`)
-- [portablegl-rs](https://github.com/pjholden/portablegl-rs) cloned as a sibling directory (`../portablegl-rs`)
+- [portablegl-rs](https://github.com/shmutalov/portablegl-rs) cloned as a sibling directory (`../portablegl-rs`)
 
 ## Building and Running
 
@@ -47,7 +47,7 @@ SDL2 libraries are vendored in the `lib/` directory and `SDL2.dll` is automatica
 
 | Crate | Purpose |
 |-------|---------|
-| [portablegl](https://github.com/pjholden/portablegl-rs) | Software OpenGL renderer |
+| [portablegl](https://github.com/shmutalov/portablegl-rs) | Software OpenGL renderer |
 | [sdl2](https://crates.io/crates/sdl2) | Window creation and input handling |
 | [noise](https://crates.io/crates/noise) | Simplex noise for terrain generation |
 | [rusqlite](https://crates.io/crates/rusqlite) | SQLite database (bundled) |
