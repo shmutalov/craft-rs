@@ -209,9 +209,9 @@ dependencies = [
 
 [[package]]
 name = "portablegl"
-version = "0.6.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bb48766722aae37f23dc7f059ea7f43cc1b06d42b372fa52ab889751cd8e925"
+checksum = "7e0c5749e27e2cc158851e0c8e978563c2d12ca1bd659d1ef08230430e33b6c6"
 
 [[package]]
 name = "proc-macro2"

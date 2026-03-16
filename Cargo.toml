@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-portablegl = "0.6"
+portablegl = "0.8"
 sdl2 = "0.37"
 noise = "0.9"
 rusqlite = { version = "0.32", features = ["bundled"] }

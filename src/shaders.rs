@@ -128,6 +128,67 @@ pub unsafe extern "C" fn block_fs(
 }
 
 // ============================================================
+// Monomorphized Fragment Shader Implementations
+// ============================================================
+
+pub struct BlockFragShader {
+    pub uniforms: *const BlockUniforms,
+}
+
+impl FragmentShader for BlockFragShader {
+    #[inline(always)]
+    unsafe fn shade(&self, fs_input: *mut f32, builtins: *mut ShaderBuiltins) {
+        let u = &*self.uniforms;
+        let ctx = &*u.ctx;
+
+        let frag_u = *fs_input.add(0);
+        let frag_v = *fs_input.add(1);
+        let fragment_ao = *fs_input.add(2);
+        let fragment_light = *fs_input.add(3);
+        let fog_factor = *fs_input.add(4);
+        let fog_height = *fs_input.add(5);
+        let diffuse = *fs_input.add(6);
+
+        let texel = ctx.texture2d(u.block_tex, frag_u, frag_v);
+        let mut r = texel.x;
+        let mut g = texel.y;
+        let mut b = texel.z;
+
+        if r == 1.0 && g == 0.0 && b == 1.0 {
+            (*builtins).discard = true;
+            return;
+        }
+
+        let cloud = r == 1.0 && g == 1.0 && b == 1.0;
+        if cloud && u.ortho != 0 {
+            (*builtins).discard = true;
+            return;
+        }
+
+        let df = if cloud { 1.0 - diffuse * 0.2 } else { diffuse };
+        let ao = if cloud { 1.0 - (1.0 - fragment_ao) * 0.2 } else { fragment_ao };
+        let ao = (ao + fragment_light).min(1.0);
+        let df = (df + fragment_light).min(1.0);
+        let value = (u.daylight + fragment_light).min(1.0);
+        let light_c = value * 0.3 + 0.2;
+        let ambient = value * 0.3 + 0.2;
+        let lr = ambient + light_c * df;
+        let lg = ambient + light_c * df;
+        let lb = ambient + light_c * df;
+        r = (r * lr * ao).clamp(0.0, 1.0);
+        g = (g * lg * ao).clamp(0.0, 1.0);
+        b = (b * lb * ao).clamp(0.0, 1.0);
+
+        let sky_color = ctx.texture2d(u.sky_tex, u.timer, fog_height);
+        r = r + (sky_color.x - r) * fog_factor;
+        g = g + (sky_color.y - g) * fog_factor;
+        b = b + (sky_color.z - b) * fog_factor;
+
+        (*builtins).gl_FragColor = Vec4::new(r, g, b, 1.0);
+    }
+}
+
+// ============================================================
 // Sky Shader Uniforms
 // ============================================================
 #[repr(C)]
@@ -167,6 +228,22 @@ pub unsafe extern "C" fn sky_fs(
     let frag_v = *fs_input.add(1);
     let color = ctx.texture2d(u.sky_tex, u.timer, frag_v);
     (*builtins).gl_FragColor = color;
+}
+
+pub struct SkyFragShader {
+    pub uniforms: *const SkyUniforms,
+}
+
+impl FragmentShader for SkyFragShader {
+    #[inline(always)]
+    unsafe fn shade(&self, fs_input: *mut f32, builtins: *mut ShaderBuiltins) {
+        let u = &*self.uniforms;
+        let ctx = &*u.ctx;
+        let _frag_u = *fs_input.add(0);
+        let frag_v = *fs_input.add(1);
+        let color = ctx.texture2d(u.sky_tex, u.timer, frag_v);
+        (*builtins).gl_FragColor = color;
+    }
 }
 
 // ============================================================
@@ -216,6 +293,30 @@ pub unsafe extern "C" fn text_fs(
         color.w = color.w.max(0.4);
     }
     (*builtins).gl_FragColor = color;
+}
+
+pub struct TextFragShader {
+    pub uniforms: *const TextUniforms,
+}
+
+impl FragmentShader for TextFragShader {
+    #[inline(always)]
+    unsafe fn shade(&self, fs_input: *mut f32, builtins: *mut ShaderBuiltins) {
+        let u = &*self.uniforms;
+        let ctx = &*u.ctx;
+        let fu = *fs_input.add(0);
+        let fv = *fs_input.add(1);
+        let mut color = ctx.texture2d(u.tex, fu, fv);
+        if u.is_sign != 0 {
+            if color.x == 1.0 && color.y == 1.0 && color.z == 1.0 && color.w == 1.0 {
+                (*builtins).discard = true;
+                return;
+            }
+        } else {
+            color.w = color.w.max(0.4);
+        }
+        (*builtins).gl_FragColor = color;
+    }
 }
 
 // ============================================================

@@ -130,7 +130,7 @@ pub fn gen_faces(ctx: &mut GlContext, components: usize, faces: usize, data: &[f
 }
 
 /// Draw triangles with position(3) + normal(3) + uv(4) = stride 10 (block/chunk data)
-pub fn draw_triangles_3d_ao(ctx: &mut GlContext, buffer: GLuint, count: i32) {
+pub fn draw_triangles_3d_ao(ctx: &mut GlContext, buffer: GLuint, count: i32, fs: &impl FragmentShader) {
     ctx.gl_bind_buffer(GL_ARRAY_BUFFER, buffer).unwrap();
     ctx.gl_enable_vertex_attrib_array(0);
     ctx.gl_enable_vertex_attrib_array(1);
@@ -138,7 +138,7 @@ pub fn draw_triangles_3d_ao(ctx: &mut GlContext, buffer: GLuint, count: i32) {
     ctx.gl_vertex_attrib_pointer(0, 3, GL_FLOAT, false, 40, 0);
     ctx.gl_vertex_attrib_pointer(1, 3, GL_FLOAT, false, 40, 12);
     ctx.gl_vertex_attrib_pointer(2, 4, GL_FLOAT, false, 40, 24);
-    ctx.gl_draw_arrays(GL_TRIANGLES, 0, count);
+    ctx.gl_draw_arrays_with_fs(GL_TRIANGLES, 0, count, fs);
     ctx.gl_disable_vertex_attrib_array(0);
     ctx.gl_disable_vertex_attrib_array(1);
     ctx.gl_disable_vertex_attrib_array(2);
@@ -146,7 +146,7 @@ pub fn draw_triangles_3d_ao(ctx: &mut GlContext, buffer: GLuint, count: i32) {
 }
 
 /// Draw triangles with position(3) + normal(3) + uv(2) = stride 8 (sky data)
-pub fn draw_triangles_3d(ctx: &mut GlContext, buffer: GLuint, count: i32) {
+pub fn draw_triangles_3d(ctx: &mut GlContext, buffer: GLuint, count: i32, fs: &impl FragmentShader) {
     ctx.gl_bind_buffer(GL_ARRAY_BUFFER, buffer).unwrap();
     ctx.gl_enable_vertex_attrib_array(0);
     ctx.gl_enable_vertex_attrib_array(1);
@@ -154,7 +154,7 @@ pub fn draw_triangles_3d(ctx: &mut GlContext, buffer: GLuint, count: i32) {
     ctx.gl_vertex_attrib_pointer(0, 3, GL_FLOAT, false, 32, 0);
     ctx.gl_vertex_attrib_pointer(1, 3, GL_FLOAT, false, 32, 12);
     ctx.gl_vertex_attrib_pointer(2, 2, GL_FLOAT, false, 32, 24);
-    ctx.gl_draw_arrays(GL_TRIANGLES, 0, count);
+    ctx.gl_draw_arrays_with_fs(GL_TRIANGLES, 0, count, fs);
     ctx.gl_disable_vertex_attrib_array(0);
     ctx.gl_disable_vertex_attrib_array(1);
     ctx.gl_disable_vertex_attrib_array(2);
@@ -162,26 +162,26 @@ pub fn draw_triangles_3d(ctx: &mut GlContext, buffer: GLuint, count: i32) {
 }
 
 /// Draw triangles with position(3) + uv(2) = stride 5 (3D text/sign data)
-pub fn draw_triangles_3d_text(ctx: &mut GlContext, buffer: GLuint, count: i32) {
+pub fn draw_triangles_3d_text(ctx: &mut GlContext, buffer: GLuint, count: i32, fs: &impl FragmentShader) {
     ctx.gl_bind_buffer(GL_ARRAY_BUFFER, buffer).unwrap();
     ctx.gl_enable_vertex_attrib_array(0);
     ctx.gl_enable_vertex_attrib_array(1);
     ctx.gl_vertex_attrib_pointer(0, 3, GL_FLOAT, false, 20, 0);
     ctx.gl_vertex_attrib_pointer(1, 2, GL_FLOAT, false, 20, 12);
-    ctx.gl_draw_arrays(GL_TRIANGLES, 0, count);
+    ctx.gl_draw_arrays_with_fs(GL_TRIANGLES, 0, count, fs);
     ctx.gl_disable_vertex_attrib_array(0);
     ctx.gl_disable_vertex_attrib_array(1);
     ctx.gl_bind_buffer(GL_ARRAY_BUFFER, 0).unwrap();
 }
 
 /// Draw 2D triangles with position(2) + uv(2) = stride 4 (2D text data)
-pub fn draw_triangles_2d(ctx: &mut GlContext, buffer: GLuint, count: i32) {
+pub fn draw_triangles_2d(ctx: &mut GlContext, buffer: GLuint, count: i32, fs: &impl FragmentShader) {
     ctx.gl_bind_buffer(GL_ARRAY_BUFFER, buffer).unwrap();
     ctx.gl_enable_vertex_attrib_array(0);
     ctx.gl_enable_vertex_attrib_array(1);
     ctx.gl_vertex_attrib_pointer(0, 2, GL_FLOAT, false, 16, 0);
     ctx.gl_vertex_attrib_pointer(1, 2, GL_FLOAT, false, 16, 8);
-    ctx.gl_draw_arrays(GL_TRIANGLES, 0, count);
+    ctx.gl_draw_arrays_with_fs(GL_TRIANGLES, 0, count, fs);
     ctx.gl_disable_vertex_attrib_array(0);
     ctx.gl_disable_vertex_attrib_array(1);
     ctx.gl_bind_buffer(GL_ARRAY_BUFFER, 0).unwrap();

@@ -568,7 +568,8 @@ fn main() {
             sky_uniforms.timer = g.time_of_day();
             ctx.gl_use_program(sky_prog);
             ctx.pgl_set_uniform(&mut sky_uniforms as *mut _ as *mut c_void);
-            draw_triangles_3d(&mut ctx, sky_buffer, 512 * 3);
+            let sky_fs = SkyFragShader { uniforms: &raw const sky_uniforms };
+            draw_triangles_3d(&mut ctx, sky_buffer, 512 * 3, &sky_fs);
         }
 
         ctx.gl_clear(GL_DEPTH_BUFFER_BIT);
@@ -592,13 +593,14 @@ fn main() {
             block_uniforms.timer = g.time_of_day();
             ctx.gl_use_program(block_prog);
             ctx.pgl_set_uniform(&mut block_uniforms as *mut _ as *mut c_void);
+            let block_fs = BlockFragShader { uniforms: &raw const block_uniforms };
 
             let mut face_count = 0;
             for chunk in &g.chunks {
                 if chunk_distance(chunk.p, chunk.q, p, q) > g.render_radius { continue; }
                 if !chunk_visible(&planes, chunk.p, chunk.q, chunk.miny, chunk.maxy, g.ortho) { continue; }
                 if chunk.buffer == 0 || chunk.faces == 0 { continue; }
-                draw_triangles_3d_ao(&mut ctx, chunk.buffer, chunk.faces * 6);
+                draw_triangles_3d_ao(&mut ctx, chunk.buffer, chunk.faces * 6, &block_fs);
                 face_count += chunk.faces;
             }
 
@@ -648,12 +650,13 @@ fn main() {
                 block_uniforms.camera = Vec3 { x: 0.0, y: 0.0, z: 5.0 };
                 ctx.gl_use_program(block_prog);
                 ctx.pgl_set_uniform(&mut block_uniforms as *mut _ as *mut c_void);
+                let item_fs = BlockFragShader { uniforms: &raw const block_uniforms };
                 let w = ITEMS[g.item_index];
                 if is_plant(w) {
                     let mut data = vec![0.0f32; 10 * 6 * 4];
                     cube::make_plant(&mut data, 0.0, 1.0, 0.0, 0.0, 0.0, 0.5, w, 45.0);
                     let buf = gen_faces(&mut ctx, 10, 4, &data);
-                    draw_triangles_3d_ao(&mut ctx, buf, 24);
+                    draw_triangles_3d_ao(&mut ctx, buf, 24, &item_fs);
                     del_buffer(&mut ctx, buf);
                 } else {
                     let mut data = vec![0.0f32; 10 * 6 * 6];
@@ -661,7 +664,7 @@ fn main() {
                     let light = [[0.5f32; 4]; 6];
                     cube::make_cube(&mut data, &ao, &light, [true; 6], 0.0, 0.0, 0.0, 0.5, w);
                     let buf = gen_faces(&mut ctx, 10, 6, &data);
-                    draw_triangles_3d_ao(&mut ctx, buf, 36);
+                    draw_triangles_3d_ao(&mut ctx, buf, 36, &item_fs);
                     del_buffer(&mut ctx, buf);
                 }
             }
@@ -689,7 +692,8 @@ fn main() {
                     g.chunks.len(), face_count * 2,
                     hour12, am_pm, fps_counter.fps,
                 );
-                render_text_2d(&mut ctx, tx, ty, ts, &text, &mut text_uniforms, text_prog);
+                let text_fs = TextFragShader { uniforms: &raw const text_uniforms };
+                render_text_2d(&mut ctx, tx, ty, ts, &text, &mut text_uniforms, text_prog, &text_fs);
             }
         }
 
@@ -709,6 +713,7 @@ fn render_text_2d(
     text: &str,
     uniforms: &mut TextUniforms,
     prog: GLuint,
+    fs: &impl FragmentShader,
 ) {
     let length = text.len();
     if length == 0 { return; }
@@ -723,7 +728,7 @@ fn render_text_2d(
     ctx.gl_blend_func(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     ctx.gl_use_program(prog);
     ctx.pgl_set_uniform(uniforms as *mut _ as *mut c_void);
-    draw_triangles_2d(ctx, buf, length as i32 * 6);
+    draw_triangles_2d(ctx, buf, length as i32 * 6, fs);
     ctx.gl_disable(GL_BLEND);
     del_buffer(ctx, buf);
 }
